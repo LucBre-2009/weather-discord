@@ -8,12 +8,12 @@ A simple GitHub Actions project that automatically updates a Discord webhook emb
 
   * Rheinbach, Germany
   * Euskirchen, Germany
-* 🌡 Temperature
-* 💨 Wind speed
-* 💧 Humidity
-* 🕒 Europe/Berlin timestamp
-* ✏️ Updates an existing Discord message
-* 🔒 Uses GitHub Secrets for sensitive data
+* Temperature
+* Wind speed
+* Humidity
+* Europe/Berlin timestamp
+* Updates an existing Discord message
+* Uses GitHub Secrets for sensitive data
 
 ## Technologies
 
@@ -52,10 +52,6 @@ The project itself works correctly, including:
 * Discord webhook updates
 * Manual GitHub Actions runs
 
-However, GitHub Actions scheduled workflows (`cron`) may sometimes fail to start automatically, even though the workflow configuration is correct. Manual execution through `workflow_dispatch` continues to work.
+However, GitHub Actions scheduled workflows (`cron`) fails to start automatically, even though the workflow configuration is correct. Manual execution through `workflow_dispatch` continues to work.
 
 The issue appears to be related to the GitHub Actions scheduler and not the Python script or APIs.
-
-## License
-
-Personal project. Provided as-is.
