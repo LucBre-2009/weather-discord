@@ -1,7 +1,6 @@
 import os
 import requests
-from datetime import datetime
-import pytz
+from datetime import datetime, timezone, timedelta
 
 
 WEBHOOK_URL = os.environ["DISCORD_WEBHOOK_URL"]
@@ -37,8 +36,10 @@ def create_embed():
     rheinbach = get_weather("Rheinbach")
     euskirchen = get_weather("Euskirchen")
 
-    time = datetime.now(pytz.timezone("Europe/Berlin")).strftime("%d.%m.%Y - %H:%M Uhr")
-    
+    # Feste UTC+2 Zeit
+    utc_plus_2 = timezone(timedelta(hours=2))
+    current_time = datetime.now(utc_plus_2).strftime("%d.%m.%Y - %H:%M Uhr")
+
     return {
         "title": "🌦 Wetter",
         "color": 3447003,
@@ -65,7 +66,7 @@ def create_embed():
             }
         ],
         "footer": {
-            "text": f"Zuletzt aktualisiert: {time}"
+            "text": f"Zuletzt aktualisiert: {current_time}"
         }
     }
 
@@ -73,7 +74,7 @@ def create_embed():
 embed = create_embed()
 
 
-# Nachricht bearbeiten, wenn MESSAGE_ID vorhanden ist
+# Vorhandene Nachricht bearbeiten
 if MESSAGE_ID:
 
     url = f"{WEBHOOK_URL}/messages/{MESSAGE_ID}"
@@ -87,13 +88,12 @@ if MESSAGE_ID:
 
     if response.status_code == 200:
         print("✅ Wetter-Nachricht aktualisiert")
-
     else:
-        print("❌ Aktualisieren fehlgeschlagen")
+        print("❌ Fehler beim Aktualisieren:")
         print(response.text)
 
 
-# Neue Nachricht erstellen, wenn keine ID vorhanden ist
+# Neue Nachricht erstellen
 else:
 
     response = requests.post(
@@ -111,11 +111,11 @@ else:
 
         message = response.json()
 
-        print("Neue Nachricht erstellt")
-        print("Neue MESSAGE_ID:")
+        print("✅ Neue Nachricht erstellt")
+        print("MESSAGE_ID:")
         print(message["id"])
 
     else:
 
-        print("❌ Nachricht konnte nicht erstellt werden")
+        print("❌ Fehler beim Senden:")
         print(response.text)
