@@ -5,6 +5,7 @@ from datetime import datetime
 
 WEBHOOK_URL = os.environ["DISCORD_WEBHOOK_URL"]
 API_KEY = os.environ["OPENWEATHER_API_KEY"]
+MESSAGE_ID = os.environ.get("MESSAGE_ID")
 
 
 def get_weather(city):
@@ -16,7 +17,7 @@ def get_weather(city):
     response = requests.get(url)
 
     if response.status_code != 200:
-        print("OpenWeather Antwort:")
+        print("OpenWeather Fehler:")
         print(response.text)
         exit(1)
 
@@ -30,58 +31,90 @@ def get_weather(city):
     }
 
 
-rheinbach = get_weather("Rheinbach")
-euskirchen = get_weather("Euskirchen")
+def create_embed():
 
+    rheinbach = get_weather("Rheinbach")
+    euskirchen = get_weather("Euskirchen")
 
-current_time = datetime.now().strftime("%d.%m.%Y - %H:%M Uhr")
+    time = datetime.now().strftime("%d.%m.%Y - %H:%M Uhr")
 
-
-embed = {
-    "title": "Wetter",
-    "color": 3447003,
-    "fields": [
-        {
-            "name": "📍 Rheinbach",
-            "value": (
-                f"🌤 {rheinbach['description']}\n"
-                f"🌡 {rheinbach['temp']} °C\n"
-                f"💨 {rheinbach['wind']} km/h\n"
-                f"💧 {rheinbach['humidity']} %"
-            ),
-            "inline": True
-        },
-        {
-            "name": "📍 Euskirchen",
-            "value": (
-                f"🌤 {euskirchen['description']}\n"
-                f"🌡 {euskirchen['temp']} °C\n"
-                f"💨 {euskirchen['wind']} km/h\n"
-                f"💧 {euskirchen['humidity']} %"
-            ),
-            "inline": True
+    return {
+        "title": "🌦 Wetter",
+        "color": 3447003,
+        "fields": [
+            {
+                "name": "📍 Rheinbach",
+                "value": (
+                    f"🌤 {rheinbach['description']}\n"
+                    f"🌡 {rheinbach['temp']} °C\n"
+                    f"💨 {rheinbach['wind']} km/h\n"
+                    f"💧 {rheinbach['humidity']} %"
+                ),
+                "inline": True
+            },
+            {
+                "name": "📍 Euskirchen",
+                "value": (
+                    f"🌤 {euskirchen['description']}\n"
+                    f"🌡 {euskirchen['temp']} °C\n"
+                    f"💨 {euskirchen['wind']} km/h\n"
+                    f"💧 {euskirchen['humidity']} %"
+                ),
+                "inline": True
+            }
+        ],
+        "footer": {
+            "text": f"Zuletzt aktualisiert: {time}"
         }
-    ],
-    "footer": {
-        "text": f"Zuletzt aktualisiert: {current_time}"
     }
-}
 
 
-payload = {
-    "username": "🌦 Wetter",
-    "embeds": [embed]
-}
+embed = create_embed()
 
 
-response = requests.post(
-    WEBHOOK_URL,
-    json=payload
-)
+# Nachricht bearbeiten, wenn MESSAGE_ID vorhanden ist
+if MESSAGE_ID:
+
+    url = f"{WEBHOOK_URL}/messages/{MESSAGE_ID}"
+
+    response = requests.patch(
+        url,
+        json={
+            "embeds": [embed]
+        }
+    )
+
+    if response.status_code == 200:
+        print("✅ Wetter-Nachricht aktualisiert")
+
+    else:
+        print("❌ Aktualisieren fehlgeschlagen")
+        print(response.text)
 
 
-if response.status_code == 204:
-    print("✅ Wetter erfolgreich an Discord gesendet")
+# Neue Nachricht erstellen, wenn keine ID vorhanden ist
 else:
-    print("❌ Discord Fehler:")
-    print(response.text)
+
+    response = requests.post(
+        WEBHOOK_URL,
+        params={
+            "wait": "true"
+        },
+        json={
+            "username": "🌦 Wetter",
+            "embeds": [embed]
+        }
+    )
+
+    if response.status_code == 200:
+
+        message = response.json()
+
+        print("Neue Nachricht erstellt")
+        print("Neue MESSAGE_ID:")
+        print(message["id"])
+
+    else:
+
+        print("❌ Nachricht konnte nicht erstellt werden")
+        print(response.text)
