@@ -37,8 +37,8 @@ def create_embed():
     rheinbach = get_weather("Rheinbach")
     euskirchen = get_weather("Euskirchen")
 
-    time = datetime.now(ZoneInfo("Europe/Berlin")).strftime("%d.%m.%Y - %H:%M Uhr")
-
+    time = datetime.now(pytz.timezone("Europe/Berlin")).strftime("%d.%m.%Y - %H:%M Uhr")
+    
     return {
         "title": "🌦 Wetter",
         "color": 3447003,
