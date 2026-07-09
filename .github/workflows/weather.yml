@@ -2,7 +2,7 @@ name: Weather Discord Update
 
 on:
   schedule:
-    - cron: "*/5555 * * * *"
+    - cron: "*/5 * * * *"
 
   workflow_dispatch:
 
@@ -14,25 +14,26 @@ jobs:
 
     steps:
 
-      - name: Repository laden
+      - name: Checkout
         uses: actions/checkout@v4
 
 
-      - name: Python installieren
+      - name: Python Setup
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
 
-      - name: Pakete installieren
+      - name: Install dependencies
         run: |
           pip install -r requirements.txt
 
 
-      - name: Wetter abrufen und senden
+      - name: Run weather script
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+          MESSAGE_ID: ${{ secrets.MESSAGE_ID }}
 
         run: |
           python weather.py
