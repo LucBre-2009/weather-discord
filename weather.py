@@ -1,6 +1,7 @@
 import os
 import requests
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 
 WEBHOOK_URL = os.environ["DISCORD_WEBHOOK_URL"]
@@ -36,7 +37,7 @@ def create_embed():
     rheinbach = get_weather("Rheinbach")
     euskirchen = get_weather("Euskirchen")
 
-    time = datetime.now().strftime("%d.%m.%Y - %H:%M Uhr")
+    time = datetime.now(ZoneInfo("Europe/Berlin")).strftime("%d.%m.%Y - %H:%M Uhr")
 
     return {
         "title": "🌦 Wetter",
