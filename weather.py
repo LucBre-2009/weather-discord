@@ -14,11 +14,11 @@ def get_weather(city):
     )
 
     response = requests.get(url)
-    
+
     if response.status_code != 200:
-    print("OpenWeather Antwort:")
-    print(response.text)
-    exit(1)
+        print("OpenWeather Antwort:")
+        print(response.text)
+        exit(1)
 
     data = response.json()
 
@@ -34,7 +34,7 @@ rheinbach = get_weather("Rheinbach")
 euskirchen = get_weather("Euskirchen")
 
 
-time = datetime.now().strftime("%d.%m.%Y - %H:%M Uhr")
+current_time = datetime.now().strftime("%d.%m.%Y - %H:%M Uhr")
 
 
 embed = {
@@ -63,7 +63,7 @@ embed = {
         }
     ],
     "footer": {
-        "text": f"Zuletzt aktualisiert: {time}"
+        "text": f"Zuletzt aktualisiert: {current_time}"
     }
 }
 
