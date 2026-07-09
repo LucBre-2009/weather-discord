@@ -2,7 +2,7 @@ name: Weather Discord Update v2
 # Scheduler refresh
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "7,12,17,22,27,32,37,42,47,52,57 * * * *"
 
   workflow_dispatch:
 
