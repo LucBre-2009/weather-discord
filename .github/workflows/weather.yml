@@ -1,4 +1,4 @@
-name: Weather Discord Update v2
+name: Weather Discord Update
 # Scheduler refresh
 on:
   schedule:
