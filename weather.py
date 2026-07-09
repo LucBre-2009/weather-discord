@@ -31,23 +31,36 @@ def get_weather(city):
 
 
 def get_time():
-    url = "https://worldtimeapi.org/api/timezone/Europe/Berlin"
+    try:
+        url = "https://worldtimeapi.org/api/timezone/Europe/Berlin"
 
-    response = requests.get(url)
+        response = requests.get(
+            url,
+            timeout=10
+        )
 
-    if response.status_code != 200:
-        print("WorldTimeAPI Fehler")
-        return "Unbekannt"
+        response.raise_for_status()
 
-    data = response.json()
+        data = response.json()
 
-    # Beispiel: 2026-07-09T13:45:20.123456+02:00
-    datetime_value = data["datetime"]
+        datetime_value = data["datetime"]
 
-    date = datetime_value[:10]
-    time = datetime_value[11:16]
+        return f"{datetime_value[8:10]}.{datetime_value[5:7]}.{datetime_value[:4]} - {datetime_value[11:16]} Uhr"
 
-    return f"{date} - {time} Uhr"
+    except Exception as e:
+        print("WorldTimeAPI nicht erreichbar:")
+        print(e)
+
+        # Fallback UTC+2
+        from datetime import datetime, timezone, timedelta
+
+        berlin_time = datetime.now(
+            timezone.utc
+        ) + timedelta(hours=2)
+
+        return berlin_time.strftime(
+            "%d.%m.%Y - %H:%M Uhr"
+        )
 
 
 def create_embed():
