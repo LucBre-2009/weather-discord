@@ -1,6 +1,6 @@
+import os
 import requests
 from datetime import datetime
-import os
 
 
 WEBHOOK_URL = os.environ["DISCORD_WEBHOOK_URL"]
@@ -14,6 +14,8 @@ def get_weather(city):
     )
 
     response = requests.get(url)
+    response.raise_for_status()
+
     data = response.json()
 
     return {
@@ -28,7 +30,7 @@ rheinbach = get_weather("Rheinbach")
 euskirchen = get_weather("Euskirchen")
 
 
-current_time = datetime.now().strftime("%H:%M Uhr")
+time = datetime.now().strftime("%d.%m.%Y - %H:%M Uhr")
 
 
 embed = {
@@ -38,7 +40,7 @@ embed = {
         {
             "name": "📍 Rheinbach",
             "value": (
-                f"{rheinbach['description']}\n"
+                f"🌤 {rheinbach['description']}\n"
                 f"🌡 {rheinbach['temp']} °C\n"
                 f"💨 {rheinbach['wind']} km/h\n"
                 f"💧 {rheinbach['humidity']} %"
@@ -48,7 +50,7 @@ embed = {
         {
             "name": "📍 Euskirchen",
             "value": (
-                f"{euskirchen['description']}\n"
+                f"🌤 {euskirchen['description']}\n"
                 f"🌡 {euskirchen['temp']} °C\n"
                 f"💨 {euskirchen['wind']} km/h\n"
                 f"💧 {euskirchen['humidity']} %"
@@ -57,13 +59,13 @@ embed = {
         }
     ],
     "footer": {
-        "text": f"Zuletzt aktualisiert: {current_time}"
+        "text": f"Zuletzt aktualisiert: {time}"
     }
 }
 
 
 payload = {
-    "username": "Wetter",
+    "username": "🌦 Wetter",
     "embeds": [embed]
 }
 
@@ -75,7 +77,7 @@ response = requests.post(
 
 
 if response.status_code == 204:
-    print("Erfolgreich gesendet")
+    print("✅ Wetter erfolgreich an Discord gesendet")
 else:
-    print("Discord Fehler:")
+    print("❌ Discord Fehler:")
     print(response.text)
