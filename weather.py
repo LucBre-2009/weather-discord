@@ -38,7 +38,7 @@ current_time = datetime.now().strftime("%d.%m.%Y - %H:%M Uhr")
 
 
 embed = {
-    "title": "🌦 Wetter",
+    "title": "Wetter",
     "color": 3447003,
     "fields": [
         {
