@@ -1,5 +1,7 @@
 import os
 import requests
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 
 WEBHOOK_URL = os.environ["DISCORD_WEBHOOK_URL"]
@@ -8,12 +10,16 @@ MESSAGE_ID = os.environ.get("MESSAGE_ID")
 
 
 def get_weather(city):
-    url = (
-        "https://api.openweathermap.org/data/2.5/weather"
-        f"?q={city},DE&appid={API_KEY}&units=metric&lang=de"
-    )
+    url = "https://api.openweathermap.org/data/2.5/weather"
 
-    response = requests.get(url)
+    params = {
+        "q": f"{city},DE",
+        "appid": API_KEY,
+        "units": "metric",
+        "lang": "de"
+    }
+
+    response = requests.get(url, params=params, timeout=10)
 
     if response.status_code != 200:
         print("OpenWeather Fehler:")
@@ -31,36 +37,8 @@ def get_weather(city):
 
 
 def get_time():
-    try:
-        url = "https://worldtimeapi.org/api/timezone/Europe/Berlin"
-
-        response = requests.get(
-            url,
-            timeout=10
-        )
-
-        response.raise_for_status()
-
-        data = response.json()
-
-        datetime_value = data["datetime"]
-
-        return f"{datetime_value[8:10]}.{datetime_value[5:7]}.{datetime_value[:4]} - {datetime_value[11:16]} Uhr"
-
-    except Exception as e:
-        print("WorldTimeAPI nicht erreichbar:")
-        print(e)
-
-        # Fallback UTC+2
-        from datetime import datetime, timezone, timedelta
-
-        berlin_time = datetime.now(
-            timezone.utc
-        ) + timedelta(hours=2)
-
-        return berlin_time.strftime(
-            "%d.%m.%Y - %H:%M Uhr"
-        )
+    now = datetime.now(ZoneInfo("Europe/Berlin"))
+    return now.strftime("%d.%m.%Y - %H:%M Uhr")
 
 
 def create_embed():
@@ -104,7 +82,7 @@ def create_embed():
 embed = create_embed()
 
 
-# Nachricht bearbeiten
+# Bestehende Nachricht bearbeiten
 if MESSAGE_ID:
 
     url = f"{WEBHOOK_URL}/messages/{MESSAGE_ID}"
@@ -113,17 +91,18 @@ if MESSAGE_ID:
         url,
         json={
             "embeds": [embed]
-        }
+        },
+        timeout=10
     )
 
     if response.status_code == 200:
         print("✅ Wetter-Nachricht aktualisiert")
     else:
-        print("❌ Fehler beim Aktualisieren")
+        print("❌ Fehler beim Bearbeiten:")
         print(response.text)
 
 
-# Neue Nachricht erstellen
+# Falls keine Message-ID vorhanden ist: neue Nachricht erstellen
 else:
 
     response = requests.post(
@@ -134,17 +113,17 @@ else:
         json={
             "username": "🌦 Wetter",
             "embeds": [embed]
-        }
+        },
+        timeout=10
     )
 
     if response.status_code == 200:
-
         message = response.json()
 
-        print("✅ Neue Nachricht erstellt")
-        print("Neue MESSAGE_ID:")
+        print("✅ Nachricht erstellt")
+        print("MESSAGE_ID:")
         print(message["id"])
 
     else:
-        print("❌ Fehler beim Erstellen")
+        print("❌ Fehler beim Erstellen:")
         print(response.text)
