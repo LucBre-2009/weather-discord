@@ -1,7 +1,7 @@
 import os
 import requests
 from datetime import datetime
-from zoneinfo import ZoneInfo
+import pytz
 
 
 WEBHOOK_URL = os.environ["DISCORD_WEBHOOK_URL"]
