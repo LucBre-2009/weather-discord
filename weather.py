@@ -14,7 +14,11 @@ def get_weather(city):
     )
 
     response = requests.get(url)
-    response.raise_for_status()
+    
+    if response.status_code != 200:
+    print("OpenWeather Antwort:")
+    print(response.text)
+    exit(1)
 
     data = response.json()
 
