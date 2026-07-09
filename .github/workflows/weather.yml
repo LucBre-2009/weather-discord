@@ -3,7 +3,7 @@ name: Weather Discord Update
 on:
   schedule:
     - cron: "*/5 * * * *"
-    
+
   workflow_dispatch:
 
 
@@ -17,17 +17,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-
       - name: Python Setup
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-
 
       - name: Run weather script
         env:
