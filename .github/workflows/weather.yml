@@ -2,7 +2,7 @@ name: Weather Discord Update
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "*/5555 * * * *"
 
   workflow_dispatch:
 
