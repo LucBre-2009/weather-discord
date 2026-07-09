@@ -1,6 +1,5 @@
 import os
 import requests
-from datetime import datetime, timezone, timedelta
 
 
 WEBHOOK_URL = os.environ["DISCORD_WEBHOOK_URL"]
@@ -31,14 +30,32 @@ def get_weather(city):
     }
 
 
+def get_time():
+    url = "https://worldtimeapi.org/api/timezone/Europe/Berlin"
+
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        print("WorldTimeAPI Fehler")
+        return "Unbekannt"
+
+    data = response.json()
+
+    # Beispiel: 2026-07-09T13:45:20.123456+02:00
+    datetime_value = data["datetime"]
+
+    date = datetime_value[:10]
+    time = datetime_value[11:16]
+
+    return f"{date} - {time} Uhr"
+
+
 def create_embed():
 
     rheinbach = get_weather("Rheinbach")
     euskirchen = get_weather("Euskirchen")
 
-    # Feste UTC+2 Zeit
-    utc_plus_2 = timezone(timedelta(hours=2))
-    current_time = datetime.now(utc_plus_2).strftime("%d.%m.%Y - %H:%M Uhr")
+    current_time = get_time()
 
     return {
         "title": "🌦 Wetter",
@@ -74,7 +91,7 @@ def create_embed():
 embed = create_embed()
 
 
-# Vorhandene Nachricht bearbeiten
+# Nachricht bearbeiten
 if MESSAGE_ID:
 
     url = f"{WEBHOOK_URL}/messages/{MESSAGE_ID}"
@@ -89,7 +106,7 @@ if MESSAGE_ID:
     if response.status_code == 200:
         print("✅ Wetter-Nachricht aktualisiert")
     else:
-        print("❌ Fehler beim Aktualisieren:")
+        print("❌ Fehler beim Aktualisieren")
         print(response.text)
 
 
@@ -112,10 +129,9 @@ else:
         message = response.json()
 
         print("✅ Neue Nachricht erstellt")
-        print("MESSAGE_ID:")
+        print("Neue MESSAGE_ID:")
         print(message["id"])
 
     else:
-
-        print("❌ Fehler beim Senden:")
+        print("❌ Fehler beim Erstellen")
         print(response.text)
